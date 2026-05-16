@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szymon Pifczyk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ke-blue-dark: #44526c; --ke-blue-mid: #6a7a94; --ke-orange: #b95a3b;
+            --ke-teal: #065774; --ke-beige-light: #e8dcc8;
+            --bg: #ffffff; --card: #f5f5f3; --card-hover: #eeedeb;
+            --text: #1a1a1a; --text-mid: #555; --text-dim: #999; --border: #e8e8e6;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Geist', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+
+        .nav-wrap { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+        .nav-wrap.scrolled { border-bottom-color: var(--border); }
+        nav { padding: 0.85rem 2rem; display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; }
+        nav.scrolled { border-bottom-color: var(--border); }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 0.15rem; }
+        nav a { text-decoration: none; font-size: 0.84rem; font-weight: 400; color: var(--text-mid); padding: 0.3rem 0.65rem; border-radius: 6px; transition: all 0.15s; cursor: pointer; }
+        nav a:hover { color: var(--text); background: var(--card); }
+        nav a.nav-name { font-weight: 600; color: var(--text); margin-right: 0.3rem; }
+        nav a.active { color: var(--text); background: var(--card); font-weight: 500; }
+        .resume-pill { font-weight: 600 !important; color: #fff !important; background: var(--ke-blue-dark) !important; padding: 0.3rem 0.85rem !important; }
+        .resume-pill:hover { background: var(--ke-orange) !important; }
+
+        .page { padding: 0 2rem 3rem; max-width: 800px; margin: 0 auto; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        .home-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding-top: 2.5rem; min-height: 80vh; align-items: start; }
+        .home-intro { position: sticky; top: 5rem; padding-right: 1rem; }
+        .home-intro h1 { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 400; line-height: 1.4; color: var(--text-mid); letter-spacing: -0.01em; margin-bottom: 1.2rem; }
+        .home-intro h1 strong { color: var(--text); font-weight: 700; }
+        .name-tooltip { position: relative; display: inline; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px; cursor: help; }
+        .name-tooltip:hover { text-decoration-color: var(--ke-orange); }
+        .name-tooltip .tip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(4px); opacity: 0; pointer-events: none; background: var(--text); color: #fff; font-size: 0.76rem; font-weight: 400; font-style: italic; font-family: 'Geist', sans-serif; padding: 0.35rem 0.7rem; border-radius: 6px; white-space: nowrap; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); z-index: 10; }
+        .name-tooltip .tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--text); }
+        .name-tooltip:hover .tip { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+        .home-intro .intro-secondary { font-size: 1.05rem; color: var(--text-dim); line-height: 1.5; font-family: 'Syne', sans-serif; }
+        .home-intro .intro-secondary strong { color: var(--text-mid); font-weight: 600; }
+
+        .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+        .bento-card { background: var(--card); border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background 0.2s; cursor: pointer; position: relative; }
+        .bento-card:hover { background: var(--card-hover); }
+        .bento-card-header { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; font-size: 0.76rem; color: var(--text-dim); position: relative; z-index: 2; }
+        .bento-card-header .arrow { font-size: 0.8rem; transition: transform 0.2s; }
+        .bento-card:hover .arrow { transform: translate(2px, -2px); }
+        .bento-card-body { padding: 0 0.85rem 0.85rem; flex: 1; position: relative; z-index: 2; }
+        .bento-card-body h3 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 600; line-height: 1.25; margin-bottom: 0.25rem; color: var(--text); }
+        .bento-card-body .date { font-size: 0.76rem; color: var(--ke-orange); margin-bottom: 0.4rem; }
+        .bento-card-body p { font-size: 0.82rem; color: var(--text-mid); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .bento-wide { grid-column: span 2; }
+
+        .card-photo .photo-wrap { overflow: hidden; position: relative; }
+        .card-photo .photo-wrap img { width: 100%; display: block; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-photo:hover .photo-wrap img { transform: translateY(6px) scale(1.02); }
+        .card-vertical .photo-wrap img { aspect-ratio: 3/4; object-fit: cover; }
+        .photo-caption { position: absolute; bottom: 0.6rem; left: 0.7rem; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 4px; z-index: 3; backdrop-filter: blur(4px); }
+
+        .card-book .book-wrap { display: flex; justify-content: center; padding: 1.5rem 1rem 0.5rem; perspective: 600px; }
+        .card-book .book-cover { width: 100px; height: 150px; border-radius: 2px; box-shadow: 3px 3px 12px rgba(0,0,0,0.12); transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; }
+        .card-book .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .card-book:hover .book-cover { transform: rotateY(-8deg) rotateX(3deg) scale(1.03); }
+        .book-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 600; line-height: 1.25; color: var(--text); margin-bottom: 0.1rem; }
+        .book-author { font-size: 0.78rem; color: var(--text-dim); }
+
+        .card-writing .bento-card-body { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-writing:hover .bento-card-body { transform: scale(1.015); }
+
+        .page-header { padding: 2.5rem 0 1.5rem; }
+        .page-header h2 { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 400; color: var(--text); letter-spacing: -0.03em; line-height: 1.1; }
+        .page-header h2::after { content: ''; }
+        .page-header p { margin-top: 0.7rem; font-size: 0.92rem; color: var(--text-dim); max-width: 520px; line-height: 1.6; }
+        .grid-4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+
+        .article-page { max-width: 680px; padding: 2.5rem 0 4rem; }
+        .article-page .back-link { font-size: 0.82rem; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 1.5rem; transition: color 0.2s; }
+        .article-page .back-link:hover { color: var(--text); }
+        .article-page h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+        .article-page .article-date { font-size: 0.82rem; color: var(--ke-orange); margin-bottom: 2rem; }
+        .article-page .article-body { font-size: 0.95rem; line-height: 1.75; color: var(--text-mid); }
+        .article-page .article-body p { margin-bottom: 1.2rem; }
+        .article-page .article-body a { color: var(--ke-teal); }
+
+        /* Resume page */
+        .resume-page { max-width: 720px; padding: 2.5rem 0 4rem; }
+        .resume-page h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .resume-page .res-tagline { font-size: 1rem; color: var(--ke-orange); margin-bottom: 2rem; }
+        .resume-page h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin: 2rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+        .res-item { margin-bottom: 1.5rem; }
+        .res-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.1rem; }
+        .res-item .res-company { color: var(--ke-teal); font-weight: 500; font-size: 0.9rem; }
+        .res-item .res-dates { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.4rem; }
+        .res-item p, .res-item li { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+        .res-item ul { padding-left: 1.2rem; }
+        .res-item li { margin-bottom: 0.3rem; }
+        .res-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+        .res-skills span { font-size: 0.76rem; font-weight: 500; padding: 0.2rem 0.6rem; background: var(--card); border-radius: 4px; color: var(--text-mid); }
+
+        footer { padding: 2rem; font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+        @media (max-width: 900px) {
+            .home-layout { grid-template-columns: 1fr; min-height: auto; }
+            .home-intro { position: static; padding-right: 0; margin-bottom: 1rem; }
+            .home-intro h1 { font-size: 1.6rem; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .bento-wide { grid-column: span 1; }
+            .page-header h2 { font-size: 2.2rem; }
+        }
+        @media (max-width: 600px) {
+            nav { padding: 0.7rem 1rem; flex-wrap: wrap; gap: 0.4rem; }
+            .page { padding: 0 1rem 2rem; }
+            .bento-grid, .grid-4 { grid-template-columns: 1fr; }
+            .home-intro h1 { font-size: 1.4rem; }
+            .page-header h2 { font-size: 1.8rem; }
+            .bento-wide { grid-column: span 1; }
+        }
+        .fade-section { animation: pageFade 0.35s ease; }
+        @keyframes pageFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+<div class="nav-wrap" id="topnav">
+<nav>
+    <div class="nav-left">
+        <a href="#" class="nav-name" data-page="home">Home</a>
+        <a href="#" data-page="writing">Writing</a>
+        <a href="#" data-page="readings">Readings</a>
+        <a href="#" data-page="hobbies">Hobbies</a>
+    </div>
+    <div class="nav-right">
+        <a href="https://www.linkedin.com/in/szymonpifczyk/" target="_blank">LinkedIn</a>
+        <a href="https://x.com/sheemawn" target="_blank">X</a>
+        <a href="https://www.kartografia-ekstremalna.pl/" target="_blank">Blog</a>
+        <a href="#" data-page="resume" class="resume-pill">Resume</a>
+    </div>
+</nav>
+</div>
+<div class="page">
+
+<!-- HOME -->
+<section class="page-section active fade-section" id="page-home">
+    <div class="home-layout">
+        <div class="home-intro">
+            <h1>Hey there, I'm <strong class="name-tooltip">Szymon<span class="tip">pronounced SHIH-mawn</span></strong>. Welcome to my corner of the internet. I like building <strong>products</strong>, <strong>data</strong>, and telling stories that stick.</h1>
+            <p class="intro-secondary">I also enjoy <strong>writing</strong>, I read <strong>Wikipedia</strong> for fun, and I cycle to the <strong>Golden Gate Bridge</strong> every morning, because what could be a cooler thing than that?</p>
+        </div>
+        <div class="bento-grid">
+            <a href="#" class="bento-card card-photo card-vertical" onclick="goTo('hobbies'); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/a-san-franciscan-morning.jpg" alt="A San Franciscan morning" loading="lazy"><span class="photo-caption">A San Franciscan morning</span></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('partitions'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>You Can See the Partitions</h3><div class="date">2018</div><p>How Poland's 18th-century borders still show up in 21st-century data — from elections to bathroom plumbing.</p></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/208906829" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/208906829.jpg" alt="Niedopolska" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Niedopolska</div><div class="book-author">Sławomir Sochaj</div></div>
+            </a>
+            <a href="#" class="bento-card card-photo" onclick="goTo('hobbies'); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/slavic-dolomites.jpg" alt="Slavic Dolomites" loading="lazy"><span class="photo-caption">Slavic Dolomites</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo bento-wide" onclick="goTo('hobbies'); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/blue-hour-in-sedona.jpg" alt="Blue hour in Sedona" loading="lazy" style="aspect-ratio:21/9; object-fit:cover;"><span class="photo-caption">Blue hour in Sedona</span></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('shoeboxes'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Poles Live in Shoeboxes</h3><div class="date">Oct 6, 2025</div><p>A 32-square-metre two-room flat should not be the norm for a young couple in a developed country.</p></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54704258" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54704258.jpg" alt="Betonoza" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Betonoza</div><div class="book-author">Jan Mencwel</div></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('nawrocki'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Identity Politics or Class Interest?</h3><div class="date">Jun 10, 2025</div><p>Checking which post-election narrative is grounded in data and which is wishful thinking.</p></div>
+            </a>
+            <a href="#" class="bento-card card-photo" onclick="goTo('hobbies'); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/early-morning-at-june-lake.jpg" alt="Early morning at June Lake" loading="lazy"><span class="photo-caption">Early morning at June Lake</span></div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- WRITING -->
+<section class="page-section" id="page-writing">
+    <div class="page-header fade-section"><h2>writing</h2><p>I run <a href="https://www.kartografia-ekstremalna.pl/" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>, a data blog about Poland with 130,000+ followers. These are English translations of selected posts.</p></div>
+    <div class="grid-4 fade-section">
+            <a href="#" class="bento-card card-writing" onclick="showArticle('nawrocki'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Identity Politics or Class Interest?</h3><div class="date">Jun 10, 2025</div><p>After the results of the second round of the presidential election were announced, the commentariat on X — especially the left-wing one — delivered its verdict: Trzaskowski lost be...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('municipalities'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Who Will Dare Abolish Small Municipalities?</h3><div class="date">Nov 11, 2025</div><p>Poland has just under 2,500 gminas — relatively few compared with other European countries. Germany, with an area similar to Poland’s, has around 11,000; small Austria has more tha...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('shoeboxes'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Poles Live in Shoeboxes</h3><div class="date">Oct 6, 2025</div><p>I grew up in housing conditions typical of my rural-suburban area: a 1970s house built by my grandfather, where we — a family of four — lived upstairs, in about 50-55 square meters...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('windmills'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Why Can Wind Turbines in Germany Be Farther from Buildings?</h3><div class="date">Aug 23, 2025</div><p>President Nawrocki vetoed the new wind-power bill, which among other things would have allowed municipalities voluntarily to reduce the minimum distance between wind turbines and b...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('diaspora'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>How Many Poles Are There in the World?</h3><div class="date">2025</div><p>To say that Poland is currently in a demographic spiral is to say almost nothing. The number of births in 2024 was lower than even the most pessimistic population forecast publishe...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('lifecycle'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>First to the City's Edge, Then to the Big City, and Finally to the Suburbs</h3><div class="date">2024</div><p>|  | | --- |</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('polarization'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>The Triumph of the Polarization-Diffusion Model</h3><div class="date">Aug 6, 2023</div><p>During the 2016 election campaign, PiS politicians, led by Prime Minister Morawiecki, loudly announced that they would end the polarization-diffusion model of national development,...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('metro'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>What Are Poland's Agglomerations?</h3><div class="date">Nov 15, 2023</div><p>After my recent post on migration to urban agglomerations, many people in Facebook comments asked — or even got outraged — about how I had drawn the boundaries of urban agglomerati...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('silesia'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>The Demographic Twilight of Upper Silesia</h3><div class="date">Sep 30, 2022</div><p>The newly announced results of the 2021 National Census confirmed a fairly expected trend: almost all county-level Poland is depopulating, with small exceptions, while the “top fiv...</p></div>
+            </a>
+            <a href="#" class="bento-card card-writing" onclick="showArticle('partitions'); return false;">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>You Can See the Partitions</h3><div class="date">2018</div><p>For anyone living in a Polish apartment block, having a bathroom is something entirely obvious. And yet there are municipalities where as many as 40% of households lack this basic ...</p></div>
+            </a>
+    </div>
+</section>
+
+<!-- ARTICLE -->
+<section class="page-section" id="page-article">
+    <div class="article-page fade-section">
+        <a href="#" class="back-link" onclick="goTo('writing'); return false;">← Back to Writing</a>
+        <h1 id="article-title"></h1>
+        <div class="article-date" id="article-date"></div>
+        <div class="article-body" id="article-body"></div>
+    </div>
+</section>
+
+<!-- READINGS -->
+<section class="page-section" id="page-readings">
+    <div class="page-header fade-section"><h2>readings</h2><p>What I'm reading, what I've read, and what I hope to read next. Mostly about Poland, urbanism, and the forces that shape how we live. Recommendations welcome!</p></div>
+    <div class="grid-4 fade-section">
+            <a href="https://www.goodreads.com/book/show/208906829" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/208906829.jpg" alt="Niedopolska" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Niedopolska</div><div class="book-author">Sławomir Sochaj</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/209314387" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/209314387.jpg" alt="Patodeweloperka" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Patodeweloperka</div><div class="book-author">Bartosz Józefiak</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/13598829" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/13598829.jpg" alt="Źle urodzone" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Źle urodzone</div><div class="book-author">Filip Springer</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/49539652" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/49539652.jpg" alt="Poniemieckie" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Poniemieckie</div><div class="book-author">Karolina Kuszyk</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/48735658" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/48735658.jpg" alt="The King of Warsaw" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">The King of Warsaw</div><div class="book-author">Szczepan Twardoch</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54784438" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54784438.jpg" alt="Kaj" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Kaj</div><div class="book-author">Zbigniew Rokita</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/144738296" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/144738296.jpg" alt="Wszyscy tak jeżdżą" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Wszyscy tak jeżdżą</div><div class="book-author">Filip Springer</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/57843880" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/57843880.jpg" alt="Zapaść" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Zapaść</div><div class="book-author">Michał Olszewski</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54704258" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54704258.jpg" alt="Betonoza" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Betonoza</div><div class="book-author">Jan Mencwel</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/69710824" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/69710824.jpg" alt="Dziury w ziemi" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Dziury w ziemi</div><div class="book-author">Łukasz Drozda</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/61316413" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/61316413.jpg" alt="Od Katowic idzie słońce" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Od Katowic idzie słońce</div><div class="book-author">Maciej Skowronek</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/50155421" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/50155421.jpg" alt="Twilight of Democracy" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Twilight of Democracy</div><div class="book-author">Anne Applebaum</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/18050143" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/18050143.jpg" alt="Zero to One" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Zero to One</div><div class="book-author">Peter Thiel</div></div>
+            </a>
+    </div>
+</section>
+
+<!-- HOBBIES -->
+<section class="page-section" id="page-hobbies">
+    <div class="page-header fade-section"><h2>hobbies</h2><p>I cycle, hike, and take photos. I've been exploring the American West since moving to San Francisco, but the best light is still in Poland.</p></div>
+    <div class="grid-4 fade-section">
+            <a href="#" class="bento-card card-photo card-vertical">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-san-franciscan-morning.jpg" alt="A San Franciscan morning" loading="lazy"><span class="photo-caption">A San Franciscan morning</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-goat-with-a-view.jpg" alt="A goat with a view" loading="lazy"><span class="photo-caption">A goat with a view</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-night-in-nyc.jpg" alt="A night in NYC" loading="lazy"><span class="photo-caption">A night in NYC</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/approaching-san-francisco.jpg" alt="Approaching San Francisco" loading="lazy"><span class="photo-caption">Approaching San Francisco</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/blue-hour-in-sedona.jpg" alt="Blue hour in Sedona" loading="lazy"><span class="photo-caption">Blue hour in Sedona</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo card-vertical">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/city-of-steel---and-bridges.jpg" alt="City of steel — and bridges" loading="lazy"><span class="photo-caption">City of steel — and bridges</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/early-morning-at-june-lake.jpg" alt="Early morning at June Lake" loading="lazy"><span class="photo-caption">Early morning at June Lake</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/game-of-thrones-vibes-30-mins-away-from-my-hometown.jpg" alt="Game of Thrones vibes 30 mins from my hometown" loading="lazy"><span class="photo-caption">Game of Thrones vibes 30 mins from my hometown</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo card-vertical">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/gloomy-oregon-coast.jpg" alt="Gloomy Oregon Coast" loading="lazy"><span class="photo-caption">Gloomy Oregon Coast</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo card-vertical">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/hiking-in-sedona.jpg" alt="Hiking in Sedona" loading="lazy"><span class="photo-caption">Hiking in Sedona</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo card-vertical">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/less-known-alpine-range-in-norcal.jpg" alt="Less known alpine range in NorCal" loading="lazy"><span class="photo-caption">Less known alpine range in NorCal</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/light-breeze-in-ireland.jpg" alt="Light breeze in Ireland" loading="lazy"><span class="photo-caption">Light breeze in Ireland</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/on-top-of-one-of-my-favorite-trails-in-california.jpg" alt="On top of one of my favourite trails in California" loading="lazy"><span class="photo-caption">On top of one of my favourite trails in California</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/slavic-dolomites.jpg" alt="Slavic Dolomites" loading="lazy"><span class="photo-caption">Slavic Dolomites</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/the-city-that-never-sleeps.jpg" alt="The city that never sleeps" loading="lazy"><span class="photo-caption">The city that never sleeps</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/view-from-mt-tam.jpg" alt="View from Mt Tam" loading="lazy"><span class="photo-caption">View from Mt Tam</span></div>
+            </a>
+            <a href="#" class="bento-card card-photo">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/yosemite.jpg" alt="Yosemite" loading="lazy"><span class="photo-caption">Yosemite</span></div>
+            </a>
+    </div>
+</section>
+
+<!-- RESUME -->
+<section class="page-section" id="page-resume">
+    <div class="resume-page fade-section">
+        <h1>Szymon Pifczyk</h1>
+        <div class="res-tagline">Experienced B2B Product Marketer · San Francisco, CA</div>
+        <h2>Experience</h2>
+        <div class="res-item">
+            <h3>Product Marketing Manager</h3>
+            <div class="res-company">Meta</div>
+            <div class="res-dates">2019 — Present · San Francisco, CA</div>
+            <p>Shaping product positioning and GTM strategy for Meta's Business Messaging platform (Paid Messaging and AI). Owning end-to-end product launches, diagnosing stale growth through deep research, and leading programming at Meta's major events including Conversations (1,000+ enterprise clients) and Performance Marketing Summit (2,000+ clients).</p>
+        </div>
+        <div class="res-item">
+            <h3>Market Specialist</h3>
+            <div class="res-company">Meta</div>
+            <div class="res-dates">2017 — 2019 · Dublin, Ireland</div>
+            <p>Built and maintained a voice-of-the-customer programme with insights flowing into Product, Integrity and Policy teams. Proactively identified threats to Meta's image and co-developed integrity policy still used to protect the platform from election interference.</p>
+        </div>
+        <div class="res-item">
+            <h3>Consultant</h3>
+            <div class="res-company">PwC</div>
+            <div class="res-dates">2015 — 2017 · Warsaw, Poland</div>
+            <p>Co-created PwC Advisory's first geo-analytics hub. Delivered location strategy and geospatial analysis projects worth $50M+ across Poland, UK, Georgia, Germany, and the US.</p>
+        </div>
+        <h2>Education</h2>
+        <div class="res-item">
+            <h3>MBA</h3>
+            <div class="res-company">Quantic School of Business and Technology</div>
+            <div class="res-dates">2020 — 2021 · San Francisco, CA</div>
+        </div>
+        <div class="res-item">
+            <h3>Bachelor of Business Analytics</h3>
+            <div class="res-company">Katowice University of Economics</div>
+            <div class="res-dates">2012 — 2015 · Katowice, Poland</div>
+            <p>Graduated with honours. Several publications in scientific journals on spatial econometrics.</p>
+        </div>
+        <h2>Other</h2>
+        <div class="res-item">
+            <p>Founded and runs <a href="https://www.kartografia-ekstremalna.pl/" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>, a data blog using GIS analysis to explain complex concepts to broad audiences. Grown to 130,000+ followers across social media and Substack.</p>
+            <div class="res-skills">
+                <span>SQL</span><span>R</span><span>QGIS</span><span>Geospatial Analysis</span><span>Product-Led Growth</span><span>B2B SaaS</span><span>Enterprise GTM</span><span>Sales Enablement</span><span>Partner Marketing</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div>
+<footer>© 2026 Szymon Pifczyk</footer>
+<script>
+    const sections = document.querySelectorAll('.page-section');
+    const navLinks = document.querySelectorAll('nav a[data-page]');
+    const articles = {
+        'nawrocki': { title: `Identity Politics or Class Interest?`, date: `Jun 10, 2025`, body: `<p>After the results of the second round of the presidential election were announced, the commentariat on X — especially the left-wing one — delivered its verdict: Trzaskowski lost because of “libkizm,” meaning the withdrawal of the state from county Poland in favor of big cities, liberal economic views focused on cutting taxes or avoiding new ones, such as a cadastral tax on second and subsequent apartments, and reluctance toward direct social cash transfers such as 800+ or the 14th pension.</p>
+<p>By the same logic, Nawrocki supposedly won because Poles expect a more left-wing economic program, while his party is associated with social transfers and broadly understood care for county Poland and the ordinary person.</p>
+<p>In this essay I go against that narrative. I present data that contradict such a framing — both “hard” data, such as economic and demographic figures, and “soft” data, such as focus groups and social-media monitoring reports. I also offer my own hypothesis about what mobilized voters to support Nawrocki.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Originally published on <a href="https://www.kartografia-ekstremalna.pl/p/identity-politics-czy-interes-klasowy" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'municipalities': { title: `Who Will Dare Abolish Small Municipalities?`, date: `Nov 11, 2025`, body: `<p>Poland has just under 2,500 gminas — relatively few compared with other European countries. Germany, with an area similar to Poland’s, has around 11,000; small Austria has more than 2,000. But the responsibilities placed on a Polish gmina are also broader than in many other countries. Polish municipalities are responsible for spatial planning, public transport, primary education, and municipal services, among other things.</p>
+<p>Every Polish gmina must have a wójt, mayor, or city president at its head, and a municipal or city council with at least 15 members. Municipal budgets consist mainly of own-source revenues — what the municipality collects directly in taxes, plus shares of PIT and CIT paid by residents and local firms — and subsidies, meaning funds transferred by the state budget for specific tasks, above all maintaining schools.</p>
+<p>The problem is that in Poland many municipalities exist only to provide the local elite with relatively well-paid, secure jobs.</p>
+<p>These municipalities lack money for investment. Increasingly, they do not even have the money for day-to-day functioning. Worse still, they also lack the means to prepare land for outside investors — they cannot service land with utilities, consolidate plots, or promote investment sites, because the entire budget is consumed by current operations. Can anything be done? Yes: these municipalities can be merged with others.</p>
+<p># Why do we need duplicate municipalities instead of urban-rural ones?</p>
+<p>Let us start with where change — and the related savings — could be carried out most easily. The existence of small municipalities is usually justified by the need to preserve relative proximity to the municipal office. Yet Poland has 143 pairs of municipalities — 286 municipalities in total — where a small town is surrounded by a rural municipality of the same name, whose seat is also located in that same town.</p>
+<p>Take Rejowiec Fabryczny in Lublin Voivodeship. It is a rapidly depopulating area that was never densely populated in the first place. For some reason, however, there is a separate municipality for the town of Rejowiec Fabryczny, with just under 4,000 residents, and a separate rural municipality of Rejowiec Fabryczny, with 3,900 residents, whose seat is also in Rejowiec Fabryczny — and not just anywhere, but in exactly the same building as the town hall. It is therefore hard to argue that residents of the rural municipality need a separate municipality so that their office is closer.</p>
+<p>Why, then, have two municipalities there? One can venture the claim that it is only to provide the local elite with proverbial warm jobs. It turns out that this claim can be supported, at least partly, by data. Poland has the institution of an urban-rural municipality, which would be ideal for cases like Rejowiec: a small town surrounded by rural areas. Comparative data show that such municipalities are financially more efficient than the situation where two municipalities exist side by side.</p>
+<p>Urban-rural municipalities and towns with surrounding rural municipalities sharing the same seat.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Originally published on <a href="https://www.kartografia-ekstremalna.pl/p/kto-odwazy-sie-zlikwidowac-mae-gminy" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'shoeboxes': { title: `Poles Live in Shoeboxes`, date: `Oct 6, 2025`, body: `<p>I grew up in housing conditions typical of my rural-suburban area: a 1970s house built by my grandfather, where we — a family of four — lived upstairs, in about 50-55 square meters, while my grandparents occupied the ground floor of roughly the same size. At first I shared a room with my brother. Later, my parents enclosed a balcony, which became my room. For many years it was very cold there in winter; only a later renovation and insulation of the house put an end to that. To get to my room, you had to walk through my brother’s room.</p>
+<p>My room barely fit a 185-centimeter sofa bed — a normal bed would have blocked the door — a desk, two cabinets, and a wardrobe.</p>
+<p>Most people I knew lived like this. Of course, there were family friends who had built houses and lived as four people in 100-120 square meters, but there were also others who lived as four people in a 40-square-meter apartment in a block or a familok. Overall, our housing situation felt transparent to me: neither bad nor good, simply normal.</p>
+<p>The first moment of reflection came when I went on an exchange to France in middle school. We stayed in Mazamet, a town in the south of the country at the foot of the Montagne Noire. It is picturesque but not especially wealthy — comparable to the Polish Sudeten foothills. Mazamet used to be a textile center, but its industry collapsed and the area is depopulating.</p>
+<p>The French family I stayed with was socially similar to mine: the mother commuted to work in the nearby county town, the father was a local baker, and “my” French student had a brother I never met because he was away at university. When I arrived, I was given the brother’s room. It had a double bed, a large built-in wardrobe, and a gaming desk.</p>
+<p>The double bed struck me in particular. You saw beds like that in American movies, but it seemed exaggerated, or at least typically American. And here it turned out that the French lived similarly.</p>
+<p>A few years later, already in high school, I went on another exchange, this time to Germany, to Marl in North Rhine-Westphalia. NRW is a region very similar to Upper Silesia, and it also has very strong family and cultural ties with our region. It is telling that among all routes from Polish airports, the only one outside Warsaw in the top ten by passenger numbers is Katowice-Dortmund.</p>
+<p>And there it was the same: I was given “my” German’s room, which occupied half the attic — a solid 25 square meters.</p>
+<p>It turned out that we were the ones living abnormally cramped, not that they were living abnormally spaciously. My experiences are not unique. Poland is near the top in the share of population living in overcrowded housing — as many as one-third of us live this way.</p>
+<p>Eurostat defines overcrowded housing as a dwelling in which a household lacks at least one common room, a separate bedroom for a couple, a separate bedroom for each child of different sex over the age of 12 (if children are the same sex or under 12, two may share one bedroom), and a separate bedroom for a single adult.</p>
+<p>In practice, that means a family of two parents and two children needs at least three rooms — four if the children are of different sexes and are 12-18 years old — while a single person needs at least two rooms.</p>
+<p>Worse still, despite rising Polish prosperity, the situation is not improving in many respects. It is a problem for the country’s future: from ordinary crampedness and the social pathologies that come with it, all the way to accelerating Poland’s demographic death spiral.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/polacy-mieszkaja-w-klitkach" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'windmills': { title: `Why Can Wind Turbines in Germany Be Farther from Buildings?`, date: `Aug 23, 2025`, body: `<p>President Nawrocki vetoed the new wind-power bill, which among other things would have allowed municipalities voluntarily to reduce the minimum distance between wind turbines and buildings from the current 700 meters to 500 meters. Much has already been written about how bad that decision is, especially in the context of the president’s earlier promise that within 100 days of taking office he would lower electricity bills by 30%.</p>
+<p>I continue to recommend Jakub Wiech’s podcast Elektryfikacja, whose latest episode takes apart the president’s illogical and untrue arguments.</p>
+<p>But the topic triggered a broader online discussion. Why is such a reduction in the minimum distance needed at all? Many commentators, especially on the right, point out that in other countries such as Germany the minimum distance is higher — which is not entirely true, but let us leave that aside. I answered one person on X with a simple visual example.</p>
+<p>Of course, this did not convince the experts on German urbanism and planning. I learned, for example, that Imielin is a mountainous area — in reality it is a plateau as flat as Kansas — or that Imielin lies close to big cities and Ahrensbök does not. So let us show the issue on a larger example: Łódzkie Voivodeship in Poland and the German state of Thuringia. They are comparable units: Łódzkie is about 12% larger, but also about 12% more populous, so their population density is practically identical.</p>
+<p>Yet if we look at built-up land in both regions, we see a major difference. In Thuringia, we have the urbanism typical of Germany, Hungary, Slovakia, or Czechia: clusters of buildings — settlements — surrounded by completely uninhabited fields and forests until the next settlement. In the satellite image, a wind farm sits less than a kilometer from the nearest buildings because between two settlements there were simply more than two kilometers of completely undeveloped space.</p>
+<p>In Łódzkie, by contrast, we have the built form typical of Poland: chaos. Houses are everywhere. There are no clear clusters, which makes it difficult to find any larger undeveloped area.</p>
+<p>These examples are not specially cherry-picked. If we create a map of buildings in both regions, we see that this pattern is typical of the whole state or voivodeship.</p>
+<p>Łódzkie is — despite relatively low population density, especially if Łódź itself is excluded — an endless built-up area. In Thuringia, when driving, you enter a village, leave it after 300 meters, and then have one or two kilometers of completely undeveloped land before the next village. The same can be seen on a map of federal, regional, and county roads, colored by speed limit. In Thuringia, small villages often have no bypasses, but passing through them is quick because they are compact: the 50 km/h limit applies for only a few hundred meters before the road returns to 90 km/h. In Łódzkie, by contrast, you almost never leave the built-up area.</p>
+<p>Some of this chaos does result from a different settlement history. But it is not as if the Second Polish Republic, the Polish People’s Republic — though it at least minimally civilized development in county towns — and especially the Third Republic did anything to tame the chaos. On the contrary, new development has appeared without order around large and small towns alike, multiplying costs.</p>
+<p>When confronted with this fact, many people respond that I must want everyone to live in battery cages, while they prefer a house with a garden. But this is a false dichotomy. First, in Poland you can absolutely live in a block of flats and simultaneously in a chaotic area without services. Even leaving that aside, Germans do not live in cages. Germans have larger dwellings on average, and in the Thuringian villages there are not apartment blocks but single-family houses. The difference is that Helmut has Erich over the fence, while Janusz has a tire shop on one side and a logistics center on the other.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/dlaczego-w-niemczech-wiatraki-moga" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'diaspora': { title: `How Many Poles Are There in the World?`, date: `2025`, body: `<p>To say that Poland is currently in a demographic spiral is to say almost nothing. The number of births in 2024 was lower than even the most pessimistic population forecast published by Statistics Poland as recently as 2022. Last year, and for the foreseeable future, Poland will lose 150,000-250,000 people a year. One effect of this dramatic situation is intensified immigration to Poland, filling labor shortages in the economy.</p>
+<p>In 2014-2021 immigrants came mainly from Ukraine, Belarus, Georgia, and Moldova — so, with the possible exception of Georgians, they did not stand out visually on the street. These four countries, however, have already been drained of potential migration resources to the point that they have begun importing immigrants themselves. Poland, too, has started reaching farther for labor, especially to the Indian subcontinent.</p>
+<p>At the same time, a similar process took place at Polish universities. To survive after the decline in Polish students, and then Ukrainian and Belarusian students, they began recruiting in Africa and Asia. The result of both processes is the increased visibility of immigrants on Polish streets, which of course provoked disgusting comments and a pogrom-like atmosphere on the right.</p>
+<p>Interestingly, however, even some right-wing politicians and commentators seem to understand that the Polish economy will collapse without replacing the shortfall caused by too few young Poles entering the labor market. But they have a fantasy solution that supposedly requires no immigrant assimilation: we will bring back Poles from abroad, of whom there are allegedly 20 million. Let us see how much truth there is in this, and how much is wishful thinking.</p>
+<p># The former USSR</p>
+<p>In this story about millions of Poles abroad, Poles in Kazakhstan occupy a special place. There are supposedly half a million of them, who for 80 years have looked toward Poland with rosaries in hand, waiting for someone to allow them to return to the homeland.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Originally published on <a href="https://www.kartografia-ekstremalna.pl/p/ile-na-swiecie-jest-polakow" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'lifecycle': { title: `First to the City's Edge, Then to the Big City, and Finally to the Suburbs`, date: `2024`, body: `<p>|  | | --- |</p>
+<p>A thought-provoking report by Professor Piotr Szukalski from the Institute of Sociology at the University of Lodz flashed across my feed on X. The demographer decided to study internal migration in Poland using a simple measure: he simply compared the number of people born in 1990-1994 in a given county in 2004 with the number of people from those same birth cohorts in that county twenty years later.</p>
+<p>As we know, Poland’s statistics on internal and international migration are imperfect, because many people do not complete the required residence registration.</p>
+<p>In this case, however, we can assume that the data capture the scale of migration fairly well. On the one hand, the natural life cycle - buying a flat, sending children to preschool, and so on - more or less forces people to register where they actually live. On the other hand, over those twenty years Statistics Poland conducted two national censuses, which at least to some degree captured real migration.</p>
+<p>Professor Szukalski looked only at people born in 1990-1994. Let us go one step further and look at cohorts a little younger and a little older, to see what the life cycle of a young Pole looks like in the twenty-first century.</p>
+<p>Let us start with those who are only just entering adulthood: people born in 2000-2004. In 2004, they were very small children, and twenty years later most of them still live - or are at least registered - with their parents. Quite a few did change their place of residence, but mainly along the city-to-suburbs axis, which means they were more likely pushed into it by their parents than making that decision on their own.</p>
+<p>There are, however, five cities where the number of residents from these cohorts increased. Unsurprisingly, they are the country’s largest academic centers - Warsaw, Kraków, Wrocław and Gdańsk - or a major academic center for its region, Rzeszów.</p>
+<p>Figure 1. Young people entering adulthood are usually still registered with parents who moved to the suburbs. Original visual from Kartografia Ekstremalna; labels in the image remain in Polish.</p>
+<p>The situation changes dramatically in the next age group. Those born in 1995-1999 - now several years out of university - are beginning to register in large cities. Here, all voivodeship capitals except Kielce and Gorzów Wielkopolski show gains, and the cities of the Big Five are, of course, especially strong magnets. Wrocław is the record-holder: thanks to the inflow of young people from across Silesia and southern Greater Poland, it is able to double the number of its young residents.</p>
+<p>In this age group, we also begin to see the first counties affected by dramatic depopulation. These are above all the most peripheral areas, near the borders with Russia, Ukraine and Belarus.</p>
+<p>Figure 2. After university, young Poles settle in academic centers. Original visual from Kartografia Ekstremalna; labels in the image remain in Polish.</p>
+<p>But the real contrasts become visible only in the next age group - the one studied by Professor Szukalski. Ages 30-34 are, in Poland, the typical age for buying a flat or building a house, as well as - probably closely connected to that - the age of having a first or second child. It is also the period of the first bigger promotions at work.</p>
+<p>All of this naturally encourages people to put down roots somewhere, and that somewhere is primarily the metropolitan areas of the Big Five. In Warsaw, Kraków and Wrocław, the number of young people has more than doubled. Outside those cities and the voivodeship capitals, there are literally only a few islands of relative demographic stability: Bielsko-Biała, Leszno and Koszalin. Everywhere else, we see an outflow of young people, which in some counties takes the form of something close to an exodus.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/najpierw-pod-miasto-potem-do-duzego" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'polarization': { title: `The Triumph of the Polarization-Diffusion Model`, date: `Aug 6, 2023`, body: `<p>During the 2016 election campaign, PiS politicians, led by Prime Minister Morawiecki, loudly announced that they would end the polarization-diffusion model of national development, which in their view directed all investment resources to the largest cities and degraded the provinces. Left-wing politicians also spoke against the model.</p>
+<p>It seemed that this model, introduced into Poland’s development strategy by Michał Boni, then an adviser to Prime Minister Tusk, was the source of all evil in the country.</p>
+<p>After taking power, PiS did in fact direct large development funds to more peripheral parts of the country, especially Eastern Poland. Many of those investments have dubious justification — the Vistula Spit canal, many expressway segments in depopulating areas with very low traffic — but the government has consistently invested in those regions.</p>
+<p>Let us check, then, whether this new strategy works.</p>
+<p># For work, only to the metropolis</p>
+<p>Let us begin with perhaps the most important factor distinguishing big cities from the provinces: the ability to find well-paid work.</p>
+<p>Maps of average wages from employment contracts clearly show five islands of wealth: Warsaw, Wrocław, Poznań, Kraków, and the Tricity. There is also a sixth island, the copper basin in Lower Silesia, and if one insists, the Katowice agglomeration is also visible, especially mining municipalities.</p>
+<p>The question is whether the PiS government managed to equalize wages across the country. The answer is: not really. Many large cities did have weaker wage growth than the rest of the country, but that was already true under PO. Under PiS, however, not only cities such as Warsaw became relatively poorer; large peripheral areas also did, especially in PiS strongholds around Zamość and Podkarpacie. Overall, there is no clear improvement or deterioration in this field.</p>
+<p>ZUS data on the number of insured people by county are more interesting. They show that in 2013-2018 the number of insured people — effectively workers — grew almost throughout the country and fairly evenly. In 2018-2023, however, 43% of counties recorded a decline, and another 10% saw an anemic increase of less than 1%. Growth concentrated mainly in metropolises and, to a lesser extent, in agricultural counties of eastern Poland.</p>
+<p>In 24 counties that make up the main cities — Warsaw, Kraków, Wrocław, Poznań, and the Tricity — and their suburbs, 20.9% of Poles aged 20-59 now live. In 2013-2018, these counties accounted for 31.8% of the increase in insured people. In the next five-year period ending in June 2023, that concentration did not weaken; it reached a shocking scale, with those counties accounting for more than 75% of new insured people.</p>
+<p>Whatever variable we take, the trend is clear: more and more jobs, especially well-paid ones, are concentrating in metropolises.</p>
+<p># For a doctor, only to the metropolis</p>
+<p>One could say that jobs are created by entrepreneurs and investors, who naturally concentrate in big cities. But the end of polarization-diffusion development was supposed to give dignity to residents of smaller towns, and dignity can be measured, for example, by access to a doctor or hospital.</p>
+<p>Here too, concentration in the five main cities is intensifying. In 2008, more than one-quarter of doctors practiced in the main cities — more than their share of population, but understandable because specialist clinics are located there and attract patients from across the country. By 2021, however, those cities had more than 35% of doctors, an enormous disproportion.</p>
+<p># For education, only to the metropolis</p>
+<p>In the number of students at higher education institutions, concentration in the largest centers has increased more gently. But perhaps it simply could not increase much more: already in 2012, the oldest available data, almost half of students — 48.7% — studied in those five centers.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/tryumf-modelu-polaryzacyjno-dyfuzyjnego" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'metro': { title: `What Are Poland's Agglomerations?`, date: `Nov 15, 2023`, body: `<p>After my recent post on migration to urban agglomerations, many people in Facebook comments asked — or even got outraged — about how I had drawn the boundaries of urban agglomerations, and why these agglomerations rather than others. It is a good question, and the answer was unsatisfactory: I took voivodeship capitals and drew agglomerations by intuition, mainly including neighboring counties and some more distant ones if they had reasonably high population density.</p>
+<p>I did this because, somewhat surprisingly in a negative sense, Poland has no official delimitation of urban agglomerations. Statistics Poland does not deal with the issue at all, while the Polish Academy of Sciences and, following it, various ministries have many different delimitations, none of which is the standard one.</p>
+<p>Eurostat does better. The European statistical office defines functional urban areas (FUAs): in simplified terms, cities above 50,000 residents together with municipalities from which at least 15% of workers commute to that city. These FUAs seem to capture agglomeration boundaries quite well, though not everywhere. Rybnik, for example, is an isolated island, while municipalities of Rybnik County were assigned to Katowice, probably because of a faulty method of assigning commuting flows in Statistics Poland’s 2011 data. FUAs have one huge drawback: they are delimited at the municipal level, not the county level.</p>
+<p>Theoretically, that should be an advantage — precision — but a huge share of Statistics Poland data is not available at the municipal level, so such boundaries are useful mainly for looking at a map.</p>
+<p>Eurostat seems aware of this, because those areas are then mapped onto NUTS-3 subregions and metropolitan regions are defined so that a subregion or several subregions count as metropolitan if they jointly have at least 250,000 residents and at least half of them live in a functional urban area.</p>
+<p>In theory this makes sense, but in practice something went wrong. If we look at the map of these metropolitan regions, we see that in Poland the metropolitan areas of Olsztyn or Kielce cover half a voivodeship, while the Wrocław or Szczecin areas do not extend beyond the city boundaries, even though their FUAs stretch deep into the suburbs. The 250,000-person threshold also makes many smaller cities disappear from the map.</p>
+<p>I therefore decided to create my own delimitation. I used a methodology combining Eurostat’s FUA method and the U.S. Census Bureau method for metropolitan statistical areas. First, I identified counties where urban municipalities have more than 50,000 residents in total and where those urban areas account for more than half the county population. These became core counties. Then I calculated which other counties send at least 10% of their labor force to work in the core county, or where at least 10% of employed people commute in from the core county.</p>
+<p>That produced the first iteration of metropolitan areas. Many natural agglomerations, however, were split into smaller parts — in the Silesian agglomeration, practically every city became its own metropolitan area. I therefore repeated the algorithm, this time using metropolitan areas rather than counties as the base and additionally removing isolated cities. After the third iteration, the metropolitan areas looked much more natural, and the data confirmed this: there were no longer agglomerations from which at least 10% of workers commuted to another agglomeration, or vice versa.</p>
+<p>Of course, some boundaries remain debatable. Goleniów County near Szczecin does not fall into Szczecin’s metropolitan area, while Tczew County, quite far from Gdańsk, belongs to the Gdańsk area. But that is what came out of the data.</p>
+<p>Poland has six agglomerations with more than one million residents, the largest being Warsaw. The highest population density in the country, however, belongs to the Katowice agglomeration — nearly 700 people per square kilometer. Five agglomerations have more than 500,000 residents, including one non-voivodeship agglomeration: my home Rybnik agglomeration. Altogether, agglomeration areas concentrate 59% of Poland’s population and 69% of employed people. Their average population density is twice the national average.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/jakie-sa-w-polsce-aglomeracje" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'silesia': { title: `The Demographic Twilight of Upper Silesia`, date: `Sep 30, 2022`, body: `<p>The newly announced results of the 2021 National Census confirmed a fairly expected trend: almost all county-level Poland is depopulating, with small exceptions, while the “top five” agglomerations — Warsaw, Kraków, Wrocław, Poznań, and the Tricity — are growing rapidly. Białystok and Rzeszów are also growing, although that growth seems likely to hit its limits quickly.</p>
+<p>Interesting cases, however, are Łódź and the GOP — the Upper Silesian Industrial District. I will use this name because it is widely recognizable and easy to say, unlike “GZM Metropolis.” These are large urban agglomerations by Polish standards, yet they are experiencing significant depopulation. The basic causes are fairly similar: both Łódź and GOP are young cities built on industries that either almost completely disappeared, as in Łódź, or are dying, as in GOP.</p>
+<p>I will write more in future posts about Łódź and why I think that city will get back on track within 10-15 years. Today, however, I focus on GOP — a region close to my heart, because I am Silesian and grew up near its cities.</p>
+<p># What is happening with GOP’s demography?</p>
+<p>I admit honestly that the census results for GOP exceeded my darkest expectations. I expected population decline and a downward correction of the agglomeration’s population, but I hoped that at least in Katowice and Gliwice the census population would be higher than the administrative balance. Reality is brutal: none of the GOP cities has more residents than the balance suggested, and compared with the previous census, population loss is even greater than in the previous intercensal period for almost all GOP counties.</p>
+<p>This matters because 2000-2006 seemed, at least economically, to be the darkest years for GOP — and now things were supposed to get only better.</p>
+<p>It was bad, and the situation has only worsened. In Katowice, between 2002 and 2011 the city lost an average of 1,829 people per year; in the most recent decade, 2,505. Among cities, only Gliwice and Ruda Śląska saw the pace of decline weaken.</p>
+<p>Zabrze and Bytom are especially shocking examples. Zabrze has more than 12,000 fewer residents than the population balance would suggest and is now barely a 158,000-person city — almost 50,000 fewer than in the early 1990s. Bytom counted more than 10,000 fewer people than there should have been; its population has fallen to 153,000, almost 90,000 fewer than in the late 1980s. Overall, the 14 main cities of the Silesian agglomeration have lost more than 163,000 residents since 2011, and even the surrounding land counties lost population, which matters because local politicians often explain mass losses by saying that people are simply moving to the suburbs.</p>
+<p># Who still lives in GOP?</p>
+<p>Population size is one thing; the composition of that population is another. Here the situation is even worse. GOP’s population pyramid resembles Poland’s: the postwar baby boom and its echo from 1975-1988 are still clearly visible. There is also a drastic decline in births starting in the 1990s, lasting until around 2005, when fertility rebounded somewhat.</p>
+<p>In simpler terms, GOP — like Poland as a whole — is in a very bad demographic situation: large postwar cohorts are retiring, their children are slowly ceasing to be young and dynamic in the labor market, and the next generation, the grandchildren of the postwar cohort, simply is not there. Assuming Poland’s average retirement age of 63, a little over 40,000 people in GOP retire this year. For comparison, fewer than half that number — just under 20,000 — reach adulthood this year.</p>
+<p># GOP’s demography is exceptionally tragic</p>
+<p>One could say: well, GOP lies in Poland, and all of Poland is facing these problems. That is true, but not everywhere is this bad. In southern Poland, GOP’s traditional competitor for migrants and investment is Kraków — a city much larger than any individual GOP city, but far smaller than all of them together. Kraków is one of the biggest winners of recent years, reflected in a rapidly growing population that exceeded 800,000 in census data and may exceed even 900,000 if foreign immigrants and students are included.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.kartografia-ekstremalna.pl/p/demograficzny-zmierzch-gornego-slaska" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` },
+        'partitions': { title: `You Can See the Partitions`, date: `2018`, body: `<p>For anyone living in a Polish apartment block, having a bathroom is something entirely obvious. And yet there are municipalities where as many as 40% of households lack this basic amenity. Even presented in a table, this startling statistic would make an impression. But when we show the data on a map, a familiar pattern emerges: the old partition line. The dubious legacy of the eastern partitioning power still shows its face today, a full century after Poland regained independence.</p>
+<p>Maps can also show less serious things. The old phantom borders of Poland are captured wonderfully by a set of maps showing who traditionally brings Christmas presents in different regions. The map is based on a survey I ran on Kartografia Ekstremalna, with more than 3,000 people taking part. And what a map it is! Naturally, we have the “default” Saint Nicholas in the former Russian partition and in the so-called Recovered Territories. In the part of Poland that once belonged to Austria, the dominant figure is Gwiazdka, who is also popular in Lower Silesia. This is the result of post-war resettlements carried out along east–west lines: the inhabitants of Lwów were moved to Upper and Lower Silesia, while those from Wilno were more likely to end up in Gdańsk and Szczecin. But note this: Gwiazdka is also popular in Świętokrzyskie and in the southern part of Lublin voivodeship — areas of the former Russian partition that had previously belonged to Lesser Poland.</p>
+<p>In Upper Silesia, meanwhile, the clear winner is Dzieciątko — the Christ Child — a figure shared by the Catholic peoples of the southern part of the former Holy Roman Empire of the German Nation. In Czechia, it is Ježíšek; in German-speaking countries, the Christkind. There is, however, one part of Upper Silesia where Dzieciątko does not appear: Cieszyn Silesia, where the gifts are brought instead by Aniołek, the Little Angel. The territory of the Little Angel overlaps with Austrian Silesia. Then there is Gwiazdor, found in Greater Poland and Kuyavia — the parts of Poland that before 1918 belonged to Prussia. Gwiazdor is also part of a broader European tradition, but unlike the Christ Child, it is a northern European one. Finally, we also get Grandfather Frost — an eastern accent, popular mainly in Podlasie.</p>
+<p>A map does not need to show familiar patterns to be interesting. Take something almost banal: the population density of the country. Put it on a map, and suddenly it becomes a playground for the historian, the urbanist, the transport enthusiast, the nature lover and — naturally — the geographer.</p>
+<p>The historian will notice the consequences of different inheritance customs in Galicia and the former Prussian territories. In Galicia, the peasant divided his field among all his children, which is why settlement there is so dispersed. You can see this around Kraków, where there are basically no uninhabited — white — areas. In the former Prussian lands, it was different: only the eldest son inherited, which meant that buildings were concentrated in compact villages, with uninhabited fields between them. There are also more towns and small cities — as in Lower Silesia.</p>
+<p>The urbanist will see the dreadful sprawl of Polish cities in every direction, driven by suburbanization. The transport enthusiast will be drawn to the Warsaw metropolitan area, which looks like a star for a reason: people settle along railway lines leading into the capital’s center. The nature lover will not pass indifferently over the vast uninhabited areas of the Bieszczady and Podlasie — the Narew valley — the impenetrable forests of western Poland, or even the protective belt around the Katowice conurbation. And the geographer? The geographer will see all of it at once.</p>
+<p style="color:var(--ke-orange); font-weight:500;">Read the full article on <a href="https://www.miesiecznik.znak.com.pl/kartografia-ekstremalna-widac-zabory/" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>.</p>` }
+    };
+    function goTo(page) {
+        sections.forEach(s => s.classList.remove('active'));
+        const t = document.getElementById('page-' + page);
+        if (t) { t.classList.add('active'); t.querySelectorAll('.fade-section').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; }); }
+        navLinks.forEach(a => a.classList.remove('active'));
+        navLinks.forEach(a => { if (a.dataset.page === page) a.classList.add('active'); });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    function showArticle(id) {
+        const a = articles[id]; if (!a) return;
+        document.getElementById('article-title').textContent = a.title;
+        document.getElementById('article-date').textContent = a.date;
+        document.getElementById('article-body').innerHTML = a.body;
+        goTo('article');
+    }
+    navLinks.forEach(a => { a.addEventListener('click', (e) => { e.preventDefault(); goTo(a.dataset.page); }); });
+    window.addEventListener('scroll', () => { document.getElementById('topnav').classList.toggle('scrolled', window.scrollY > 10); });
+</script>
+</body>
+</html>
