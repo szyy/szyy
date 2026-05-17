@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szymon Pifczyk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ke-blue-dark: #44526c; --ke-blue-mid: #6a7a94; --ke-orange: #b95a3b;
+            --ke-teal: #065774; --ke-beige-light: #e8dcc8;
+            --bg: #ffffff; --card: #f5f5f3; --card-hover: #eeedeb;
+            --text: #1a1a1a; --text-mid: #555; --text-dim: #999; --border: #e8e8e6;
+        }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Geist', 'Helvetica Neue', sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; font-size: 15px; }
+
+        .nav-wrap { position: sticky; top: 0; z-index: 100; background: var(--bg); border-bottom: 1px solid transparent; transition: border-color 0.3s; }
+        .nav-wrap.scrolled { border-bottom-color: var(--border); }
+        nav { padding: 0.85rem 2rem; display: flex; justify-content: space-between; align-items: center; max-width: 800px; margin: 0 auto; }
+        nav.scrolled { border-bottom-color: var(--border); }
+        .nav-left, .nav-right { display: flex; align-items: center; gap: 0.15rem; }
+        nav a { text-decoration: none; font-size: 0.84rem; font-weight: 400; color: var(--text-mid); padding: 0.3rem 0.65rem; border-radius: 6px; transition: all 0.15s; cursor: pointer; }
+        nav a:hover { color: var(--text); background: var(--card); }
+        nav a.nav-name { font-weight: 600; color: var(--text); margin-right: 0.3rem; }
+        nav a.active { color: var(--text); background: var(--card); font-weight: 500; }
+        .resume-pill { font-weight: 600 !important; color: #fff !important; background: var(--ke-blue-dark) !important; padding: 0.3rem 0.85rem !important; }
+        .resume-pill:hover { background: var(--ke-orange) !important; }
+
+        .page { padding: 0 2rem 3rem; max-width: 800px; margin: 0 auto; }
+        .page-section { display: none; }
+        .page-section.active { display: block; }
+
+        .home-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; padding-top: 2.5rem; min-height: 80vh; align-items: start; }
+        .home-intro { position: sticky; top: 5rem; padding-right: 1rem; }
+        .home-intro h1 { font-family: 'Syne', sans-serif; font-size: 1.7rem; font-weight: 400; line-height: 1.4; color: var(--text-mid); letter-spacing: -0.01em; margin-bottom: 1.2rem; }
+        .home-intro h1 strong { color: var(--text); font-weight: 700; }
+        .name-tooltip { position: relative; display: inline; text-decoration: underline; text-decoration-color: var(--border); text-underline-offset: 4px; cursor: help; }
+        .name-tooltip:hover { text-decoration-color: var(--ke-orange); }
+        .name-tooltip .tip { position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%) translateY(4px); opacity: 0; pointer-events: none; background: var(--text); color: #fff; font-size: 0.76rem; font-weight: 400; font-style: italic; font-family: 'Geist', sans-serif; padding: 0.35rem 0.7rem; border-radius: 6px; white-space: nowrap; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); z-index: 10; }
+        .name-tooltip .tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--text); }
+        .name-tooltip:hover .tip { opacity: 1; transform: translateX(-50%) translateY(-6px); }
+        .home-intro .intro-secondary { font-size: 1.05rem; color: var(--text-dim); line-height: 1.5; font-family: 'Syne', sans-serif; }
+        .home-intro .intro-secondary strong { color: var(--text-mid); font-weight: 600; }
+
+        .bento-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: dense; gap: 0.7rem; }
+        .bento-grid .card-full { grid-column: span 2; }
+        .bento-grid .card-photo .photo-wrap img { width: 100%; display: block; object-fit: cover; height: 280px; }
+        .bento-grid .card-full .photo-wrap img { height: 300px; }
+        .bento-card { background: var(--card); border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background 0.2s; cursor: pointer; position: relative; }
+        .bento-card:hover { background: var(--card-hover); }
+        .bento-card-header { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; font-size: 0.76rem; color: var(--text-dim); position: relative; z-index: 2; }
+        .bento-card-header .arrow { font-size: 0.8rem; transition: transform 0.2s; }
+        .bento-card:hover .arrow { transform: translate(2px, -2px); }
+        .bento-card-body { padding: 0 0.85rem 0.85rem; flex: 1; position: relative; z-index: 2; }
+        .bento-card-body h3 { font-family: 'Syne', sans-serif; font-size: 1.15rem; font-weight: 600; line-height: 1.25; margin-bottom: 0.25rem; color: var(--text); }
+        .bento-card-body .date { font-size: 0.76rem; color: var(--ke-orange); margin-bottom: 0.4rem; }
+        .bento-card-body p { font-size: 0.82rem; color: var(--text-mid); line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+        .bento-wide { grid-column: span 2; }
+
+        .card-photo .photo-wrap { overflow: hidden; position: relative; height: 100%; }
+        .card-photo .photo-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-photo:hover .photo-wrap img { transform: scale(1.04); }
+        /* Regular card: 2 rows */
+        .card-photo { grid-row: span 2; }
+        /* Vertical card: 3 rows */
+        .card-vertical { grid-row: span 3; }
+        /* Horizontal card: 2 columns, 2 rows */
+        .card-horizontal { grid-column: span 2; grid-row: span 2; }
+        .photo-caption { position: absolute; bottom: 0.6rem; left: 0.7rem; font-size: 0.72rem; color: #fff; background: rgba(0,0,0,0.5); padding: 0.15rem 0.5rem; border-radius: 4px; z-index: 3; backdrop-filter: blur(4px); }
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; inset: 0; z-index: 1000; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; cursor: zoom-out; padding: 2rem; }
+        .lightbox.open { display: flex; animation: lbFade 0.25s ease; }
+        .lightbox img { max-width: 95%; max-height: 95vh; object-fit: contain; border-radius: 4px; }
+        .lightbox-caption { position: absolute; bottom: 1.5rem; left: 50%; transform: translateX(-50%); color: #fff; font-size: 0.85rem; background: rgba(0,0,0,0.6); padding: 0.3rem 0.8rem; border-radius: 6px; backdrop-filter: blur(6px); white-space: nowrap; }
+        .lightbox-close { position: absolute; top: 1.2rem; right: 1.5rem; color: #fff; font-size: 1.5rem; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; background: none; border: none; }
+        .lightbox-close:hover { opacity: 1; }
+        @keyframes lbFade { from { opacity: 0; } to { opacity: 1; } }
+
+        .card-book .book-wrap { display: flex; justify-content: center; padding: 1.5rem 1rem 0.5rem; perspective: 600px; }
+        .card-book .book-cover { width: 100px; height: 150px; border-radius: 2px; box-shadow: 3px 3px 12px rgba(0,0,0,0.12); transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); overflow: hidden; }
+        .card-book .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+        .card-book:hover .book-cover { transform: rotateY(-8deg) rotateX(3deg) scale(1.03); }
+        .book-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 600; line-height: 1.25; color: var(--text); margin-bottom: 0.1rem; }
+        .book-author { font-size: 0.78rem; color: var(--text-dim); }
+
+        .card-writing .bento-card-body { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .card-writing:hover .bento-card-body { transform: scale(1.015); }
+
+        .page-header { padding: 2.5rem 0 1.5rem; }
+        .page-header h2 { font-family: 'Syne', sans-serif; font-size: 3.5rem; font-weight: 400; color: var(--text); letter-spacing: -0.03em; line-height: 1.1; }
+        .page-header h2::after { content: ''; }
+        .page-header p { margin-top: 0.7rem; font-size: 0.92rem; color: var(--text-dim); max-width: 520px; line-height: 1.6; }
+        .grid-4 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+        /* Photo grid uses dense packing with fixed row heights */
+        .grid-photos { display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 140px; grid-auto-flow: dense; gap: 0.7rem; }
+        .grid-photos .bento-card-header { display: none; }
+        .grid-photos .bento-card { border-radius: 8px; }
+
+        .article-page { max-width: 680px; padding: 2.5rem 0 4rem; }
+        .article-page .back-link { font-size: 0.82rem; color: var(--text-dim); text-decoration: none; display: inline-flex; align-items: center; gap: 0.3rem; margin-bottom: 1.5rem; transition: color 0.2s; }
+        .article-page .back-link:hover { color: var(--text); }
+        .article-page h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+        .article-page .article-date { font-size: 0.82rem; color: var(--ke-orange); margin-bottom: 2rem; }
+        .article-page .article-body { font-size: 0.95rem; line-height: 1.75; color: var(--text-mid); }
+        .article-page .article-body p { margin-bottom: 1.2rem; }
+        .article-page .article-body a { color: var(--ke-teal); }
+
+        /* Resume page */
+        .resume-page { max-width: 720px; padding: 2.5rem 0 4rem; }
+        .resume-page h1 { font-family: 'Syne', sans-serif; font-size: 2.2rem; font-weight: 700; margin-bottom: 0.3rem; }
+        .resume-page .res-tagline { font-size: 1rem; color: var(--ke-orange); margin-bottom: 2rem; }
+        .resume-page h2 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin: 2rem 0 1rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+        .res-item { margin-bottom: 1.5rem; }
+        .res-item h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.1rem; }
+        .res-item .res-company { color: var(--ke-teal); font-weight: 500; font-size: 0.9rem; }
+        .res-item .res-dates { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.4rem; }
+        .res-item p, .res-item li { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; }
+        .res-item ul { padding-left: 1.2rem; }
+        .res-item li { margin-bottom: 0.3rem; }
+        .res-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+        .res-skills span { font-size: 0.76rem; font-weight: 500; padding: 0.2rem 0.6rem; background: var(--card); border-radius: 4px; color: var(--text-mid); }
+
+        footer { padding: 2rem; font-size: 0.75rem; color: var(--text-dim); text-align: center; }
+
+        @media (max-width: 900px) {
+            .home-layout { grid-template-columns: 1fr; min-height: auto; }
+            .home-intro { position: static; padding-right: 0; margin-bottom: 1rem; }
+            .home-intro h1 { font-size: 1.6rem; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .bento-wide { grid-column: span 1; }
+            .page-header h2 { font-size: 2.2rem; }
+        }
+        @media (max-width: 600px) {
+            nav { padding: 0.7rem 1rem; flex-wrap: wrap; gap: 0.4rem; }
+            .page { padding: 0 1rem 2rem; }
+            .bento-grid, .grid-4 { grid-template-columns: 1fr; }
+            .grid-photos { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 120px; }
+            .card-horizontal { grid-column: span 2; }
+            .home-intro h1 { font-size: 1.4rem; }
+            .page-header h2 { font-size: 1.8rem; }
+            .bento-wide { grid-column: span 1; }
+        }
+        .fade-section { animation: pageFade 0.35s ease; }
+        @keyframes pageFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+<div class="nav-wrap" id="topnav">
+<nav>
+    <div class="nav-left">
+        <a href="#" class="nav-name" data-page="home">Home</a>
+        <a href="#" data-page="writing">Writing</a>
+        <a href="#" data-page="readings">Readings</a>
+        <a href="#" data-page="hobbies">Hobbies</a>
+    </div>
+    <div class="nav-right">
+        <a href="https://www.linkedin.com/in/szymonpifczyk/" target="_blank">LinkedIn</a>
+        <a href="https://x.com/sheemawn" target="_blank">X</a>
+        <a href="https://www.kartografia-ekstremalna.pl/" target="_blank">Blog</a>
+        <a href="#" data-page="resume" class="resume-pill">Resume</a>
+    </div>
+</nav>
+</div>
+<div class="page">
+
+<!-- HOME -->
+<section class="page-section active fade-section" id="page-home">
+    <div class="home-layout">
+        <div class="home-intro">
+            <h1>Hey there, I'm <strong class="name-tooltip">Szymon<span class="tip">pronounced SHIH-mawn</span></strong>. Welcome to my corner of the internet. I like building <strong>products</strong>, <strong>data</strong>, and telling stories that stick.</h1>
+            <p class="intro-secondary">I also enjoy <strong>writing</strong>, I read <strong>Wikipedia</strong> for fun, and I cycle to the <strong>Golden Gate Bridge</strong> every morning, because what could be a cooler thing than that?</p>
+        </div>
+        <div class="bento-grid">
+            <!-- Row 1: SF Morning — full width -->
+            <a href="#" class="bento-card card-photo card-full" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/a-san-franciscan-morning.jpg" alt="A San Franciscan morning" loading="lazy"><span class="photo-caption">A San Franciscan morning</span></div>
+            </a>
+            <!-- Row 2: Kajś + A night in NYC -->
+            <a href="https://www.goodreads.com/book/show/54784438" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54784438.jpg" alt="Kajś" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Kajś</div><div class="book-author">Zbigniew Rokita</div></div>
+            </a>
+            <a href="#" class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/a-night-in-nyc.jpg" alt="A night in NYC" loading="lazy"><span class="photo-caption">A night in NYC</span></div>
+            </a>
+            <!-- Row 3: Polarization-Diffusion + Betonoza -->
+            <a href="https://www.kartografia-ekstremalna.pl/p/tryumf-modelu-polaryzacyjno-dyfuzyjnego" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>The Triumph of the Polarization-Diffusion Model</h3><div class="date">Aug 6, 2023</div><p>A widely-cited analysis of the growing divergence between Poland's big 5 cities and the rest of the country in living standards, urban fabric, and opportunities.</p></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54704258" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54704258.jpg" alt="Betonoza" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Betonoza</div><div class="book-author">Jan Mencwel</div></div>
+            </a>
+            <!-- Row 4: Blue hour in Sedona — full width -->
+            <a href="#" class="bento-card card-photo card-full" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/blue-hour-in-sedona.jpg" alt="Blue hour in Sedona" loading="lazy"><span class="photo-caption">Blue hour in Sedona</span></div>
+            </a>
+            <!-- Row 5: Identity Politics + Alpine NorCal -->
+            <a href="https://www.kartografia-ekstremalna.pl/p/identity-politics-czy-interes-klasowy" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Identity Politics or Class Interest?</h3><div class="date">Jun 10, 2025</div><p>An in-depth analysis of the 2025 presidential election in Poland, arguing that religion, not social class, delivered a victory for Karol Nawrocki.</p></div>
+            </a>
+            <a href="#" class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span><span class="arrow">↗</span></div>
+                <div class="photo-wrap"><img src="photos/less-known-alpine-range-in-norcal.jpg" alt="Less known alpine range in NorCal" loading="lazy"><span class="photo-caption">Less known alpine range in NorCal</span></div>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- WRITING -->
+<section class="page-section" id="page-writing">
+    <div class="page-header fade-section"><h2>writing</h2><p>I run <a href="https://www.kartografia-ekstremalna.pl/" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>, a data blog about Poland with 130,000+ followers. Selected articles below — all originally in Polish. Click through to read on the original site.</p></div>
+    <div class="grid-4 fade-section">
+            <a href="https://www.kartografia-ekstremalna.pl/p/kto-odwazy-sie-zlikwidowac-mae-gminy" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Who Will Dare Abolish Small Municipalities?</h3><div class="date">Nov 11, 2025</div><p>A research paper on the growing fiscal crunch small municipalities find themselves into, and a call for amalgamation of municipal borders to sustain basic public services.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/polacy-mieszkaja-w-klitkach" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Poles Live in Shoeboxes</h3><div class="date">Oct 6, 2025</div><p>An opinion piece, backed by data, on the cramped living conditions of Poles in big cities and how they are stopping young people from family formation.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/dlaczego-w-niemczech-wiatraki-moga" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Polish Sprawl Blocks Green Energy</h3><div class="date">Aug 23, 2025</div><p>A widely-cited educational article on the cost of urban sprawl and laissez-faire urban planning, through the lens of inability to find suitable greenfields for wind power.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/identity-politics-czy-interes-klasowy" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>Identity Politics or Class Interest?</h3><div class="date">Jun 10, 2025</div><p>An in-depth analysis of the 2025 presidential election in Poland, arguing that religion, not social class, delivered a victory for Karol Nawrocki.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/ile-na-swiecie-jest-polakow" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>How Many Poles Are There in the World?</h3><div class="date">2025</div><p>A critique of the belief that Poland does not need immigration because there are millions of Poles abroad, outlining the true numbers and assessing their appetite for return.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/najpierw-pod-miasto-potem-do-duzego" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>A Lifecycle of Moves of an Average Pole</h3><div class="date">2024</div><p>An analysis of how Polish people's moving patterns change across their lifecycle.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/jakie-sa-w-polsce-aglomeracje" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>What Are Poland's Agglomerations?</h3><div class="date">Nov 15, 2023</div><p>A research article attempting to delimitate borders of Polish metropolitan areas, based on commuting, migration and economic data.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/tryumf-modelu-polaryzacyjno-dyfuzyjnego" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>The Triumph of the Polarization-Diffusion Model</h3><div class="date">Aug 6, 2023</div><p>A widely-cited analysis of the growing divergence between Poland's big 5 cities and the rest of the country in living standards, urban fabric, and opportunities.</p></div>
+            </a>
+            <a href="https://www.kartografia-ekstremalna.pl/p/demograficzny-zmierzch-gornego-slaska" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · Blog</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>The Demographic Twilight of Upper Silesia</h3><div class="date">Sep 30, 2022</div><p>A data-driven opinion piece on the demographic decline of my home region, brought by deindustrialisation and declining birth rates.</p></div>
+            </a>
+            <a href="https://www.miesiecznik.znak.com.pl/kartografia-ekstremalna-widac-zabory/" target="_blank" class="bento-card card-writing">
+                <div class="bento-card-header"><span>Writing · ZNAK Magazine</span><span class="arrow">↗</span></div>
+                <div class="bento-card-body"><h3>You Can See the Partitions</h3><div class="date">2018</div><p>A cover story for ZNAK magazine about maps and cartography, touching on how maps can visualise — and manipulate — data. (paywall)</p></div>
+            </a>
+    </div>
+</section>
+
+<!-- READINGS -->
+<section class="page-section" id="page-readings">
+    <div class="page-header fade-section"><h2>readings</h2><p>What I'm reading, what I've read, and what I hope to read next. Mostly about Poland, urbanism, and the forces that shape how we live. Recommendations welcome!</p></div>
+    <div class="grid-4 fade-section">
+            <a href="https://www.goodreads.com/book/show/208906829" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/208906829.jpg" alt="Niedopolska" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Niedopolska</div><div class="book-author">Sławomir Sochaj</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/209314387" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/209314387.jpg" alt="Patodeweloperka" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Patodeweloperka</div><div class="book-author">Bartosz Józefiak</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/13598829" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/13598829.jpg" alt="Źle urodzone" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Źle urodzone</div><div class="book-author">Filip Springer</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/49539652" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/49539652.jpg" alt="Poniemieckie" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Poniemieckie</div><div class="book-author">Karolina Kuszyk</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/48735658" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/48735658.jpg" alt="The King of Warsaw" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">The King of Warsaw</div><div class="book-author">Szczepan Twardoch</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54784438" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54784438.jpg" alt="Kajś" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Kajś</div><div class="book-author">Zbigniew Rokita</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/144738296" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/144738296.jpg" alt="Wszyscy tak jeżdżą" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Wszyscy tak jeżdżą</div><div class="book-author">Filip Springer</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/57843880" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/57843880.jpg" alt="Zapaść" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Zapaść</div><div class="book-author">Michał Olszewski</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/54704258" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/54704258.jpg" alt="Betonoza" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Betonoza</div><div class="book-author">Jan Mencwel</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/69710824" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/69710824.jpg" alt="Dziury w ziemi" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Dziury w ziemi</div><div class="book-author">Łukasz Drozda</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/61316413" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/61316413.jpg" alt="Od Katowic idzie słońce" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Od Katowic idzie słońce</div><div class="book-author">Maciej Skowronek</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/50155421" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/50155421.jpg" alt="Twilight of Democracy" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Twilight of Democracy</div><div class="book-author">Anne Applebaum</div></div>
+            </a>
+            <a href="https://www.goodreads.com/book/show/18050143" target="_blank" class="bento-card card-book">
+                <div class="bento-card-header"><span>Readings · Books</span><span class="arrow">↗</span></div>
+                <div class="book-wrap"><div class="book-cover"><img src="books/18050143.jpg" alt="Zero to One" loading="lazy"></div></div>
+                <div class="bento-card-body"><div class="book-title">Zero to One</div><div class="book-author">Peter Thiel</div></div>
+            </a>
+    </div>
+</section>
+
+<!-- HOBBIES -->
+<section class="page-section" id="page-hobbies">
+    <div class="page-header fade-section"><h2>hobbies</h2><p>I cycle, hike, and take photos. I've been exploring the American West since moving to San Francisco, but the best light is still in Poland.</p></div>
+    <div class="grid-photos fade-section">
+            <a class="bento-card card-photo card-vertical" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-san-franciscan-morning.jpg" alt="A San Franciscan morning" loading="lazy"><span class="photo-caption">A San Franciscan morning</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-goat-with-a-view.jpg" alt="A goat with a view" loading="lazy"><span class="photo-caption">A goat with a view</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/a-night-in-nyc.jpg" alt="A night in NYC" loading="lazy"><span class="photo-caption">A night in NYC</span></div>
+            </a>
+            <a class="bento-card card-photo card-horizontal" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/approaching-san-francisco.jpg" alt="Approaching San Francisco" loading="lazy"><span class="photo-caption">Approaching San Francisco</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/blue-hour-in-sedona.jpg" alt="Blue hour in Sedona" loading="lazy"><span class="photo-caption">Blue hour in Sedona</span></div>
+            </a>
+            <a class="bento-card card-photo card-vertical" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/city-of-steel---and-bridges.jpg" alt="City of steel — and bridges" loading="lazy"><span class="photo-caption">City of steel — and bridges</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/early-morning-at-june-lake.jpg" alt="Early morning at June Lake" loading="lazy"><span class="photo-caption">Early morning at June Lake</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/game-of-thrones-vibes-30-mins-away-from-my-hometown.jpg" alt="Game of Thrones vibes 30 mins from my hometown" loading="lazy"><span class="photo-caption">Game of Thrones vibes 30 mins from my hometown</span></div>
+            </a>
+            <a class="bento-card card-photo card-horizontal" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/gloomy-oregon-coast.jpg" alt="Gloomy Oregon Coast" loading="lazy"><span class="photo-caption">Gloomy Oregon Coast</span></div>
+            </a>
+            <a class="bento-card card-photo card-vertical" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/hiking-in-sedona.jpg" alt="Hiking in Sedona" loading="lazy"><span class="photo-caption">Hiking in Sedona</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/less-known-alpine-range-in-norcal.jpg" alt="Less known alpine range in NorCal" loading="lazy"><span class="photo-caption">Less known alpine range in NorCal</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/light-breeze-in-ireland.jpg" alt="Light breeze in Ireland" loading="lazy"><span class="photo-caption">Light breeze in Ireland</span></div>
+            </a>
+            <a class="bento-card card-photo card-horizontal" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/on-top-of-one-of-my-favorite-trails-in-california.jpg" alt="On top of one of my favourite trails in California" loading="lazy"><span class="photo-caption">On top of one of my favourite trails in California</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/slavic-dolomites.jpg" alt="Slavic Dolomites" loading="lazy"><span class="photo-caption">Slavic Dolomites</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/the-city-that-never-sleeps.jpg" alt="The city that never sleeps" loading="lazy"><span class="photo-caption">The city that never sleeps</span></div>
+            </a>
+            <a class="bento-card card-photo card-vertical" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/view-from-mt-tam.jpg" alt="View from Mt Tam" loading="lazy"><span class="photo-caption">View from Mt Tam</span></div>
+            </a>
+            <a class="bento-card card-photo" onclick="openLightbox(this); return false;">
+                <div class="bento-card-header"><span>Hobbies · Photography</span></div>
+                <div class="photo-wrap"><img src="photos/yosemite.jpg" alt="Yosemite" loading="lazy"><span class="photo-caption">Yosemite</span></div>
+            </a>
+    </div>
+</section>
+
+<!-- RESUME -->
+<section class="page-section" id="page-resume">
+    <div class="resume-page fade-section">
+        <h1>Szymon Pifczyk</h1>
+        <div class="res-tagline">Experienced B2B Product Marketer · San Francisco, CA</div>
+        <h2>Experience</h2>
+        <div class="res-item">
+            <h3>Product Marketing Manager</h3>
+            <div class="res-company">Meta</div>
+            <div class="res-dates">2019 — Present · San Francisco, CA</div>
+            <p>Shaping product positioning and GTM strategy for Meta's Business Messaging platform (Paid Messaging and AI). Owning end-to-end product launches, diagnosing stale growth through deep research, and leading programming at Meta's major events including Conversations (1,000+ enterprise clients) and Performance Marketing Summit (2,000+ clients).</p>
+        </div>
+        <div class="res-item">
+            <h3>Market Specialist</h3>
+            <div class="res-company">Meta</div>
+            <div class="res-dates">2017 — 2019 · Dublin, Ireland</div>
+            <p>Built and maintained a voice-of-the-customer programme with insights flowing into Product, Integrity and Policy teams. Proactively identified threats to Meta's image and co-developed integrity policy still used to protect the platform from election interference.</p>
+        </div>
+        <div class="res-item">
+            <h3>Consultant</h3>
+            <div class="res-company">PwC</div>
+            <div class="res-dates">2015 — 2017 · Warsaw, Poland</div>
+            <p>Co-created PwC Advisory's first geo-analytics hub. Delivered location strategy and geospatial analysis projects worth $50M+ across Poland, UK, Georgia, Germany, and the US.</p>
+        </div>
+        <h2>Education</h2>
+        <div class="res-item">
+            <h3>MBA</h3>
+            <div class="res-company">Quantic School of Business and Technology</div>
+            <div class="res-dates">2020 — 2021 · San Francisco, CA</div>
+        </div>
+        <div class="res-item">
+            <h3>Bachelor of Business Analytics</h3>
+            <div class="res-company">Katowice University of Economics</div>
+            <div class="res-dates">2012 — 2015 · Katowice, Poland</div>
+            <p>Graduated with honours. Several publications in scientific journals on spatial econometrics.</p>
+        </div>
+        <h2>Other</h2>
+        <div class="res-item">
+            <p>Founded and runs <a href="https://www.kartografia-ekstremalna.pl/" target="_blank" style="color:var(--ke-teal);">Kartografia Ekstremalna</a>, a data blog using GIS analysis to explain complex concepts to broad audiences. Grown to 130,000+ followers across social media and Substack.</p>
+            <div class="res-skills">
+                <span>SQL</span><span>R</span><span>QGIS</span><span>Geospatial Analysis</span><span>Product-Led Growth</span><span>B2B SaaS</span><span>Enterprise GTM</span><span>Sales Enablement</span><span>Partner Marketing</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+</div>
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+    <div class="lightbox-caption" id="lightbox-cap"></div>
+</div>
+<footer>© 2026 Szymon Pifczyk</footer>
+<script>
+    const sections = document.querySelectorAll('.page-section');
+    const navLinks = document.querySelectorAll('nav a[data-page]');
+    function goTo(page) {
+        sections.forEach(s => s.classList.remove('active'));
+        const t = document.getElementById('page-' + page);
+        if (t) { t.classList.add('active'); t.querySelectorAll('.fade-section').forEach(el => { el.style.animation = 'none'; el.offsetHeight; el.style.animation = ''; }); }
+        navLinks.forEach(a => a.classList.remove('active'));
+        navLinks.forEach(a => { if (a.dataset.page === page) a.classList.add('active'); });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    navLinks.forEach(a => { a.addEventListener('click', (e) => { e.preventDefault(); goTo(a.dataset.page); }); });
+    window.addEventListener('scroll', () => { document.getElementById('topnav').classList.toggle('scrolled', window.scrollY > 10); });
+    function openLightbox(card) {
+        const img = card.querySelector('.photo-wrap img');
+        const cap = card.querySelector('.photo-caption');
+        if (!img) return;
+        document.getElementById('lightbox-img').src = img.src;
+        document.getElementById('lightbox-cap').textContent = cap ? cap.textContent : '';
+        document.getElementById('lightbox').classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+        document.getElementById('lightbox').classList.remove('open');
+        document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+</script>
+</body>
+</html>
