@@ -48,8 +48,8 @@
 
         .bento-grid { display: grid; grid-template-columns: 1fr 1fr; grid-auto-flow: dense; gap: 0.7rem; }
         .bento-grid .card-full { grid-column: span 2; }
-        .bento-grid .card-photo .photo-wrap img { width: 100%; display: block; object-fit: cover; height: 280px; }
-        .bento-grid .card-full .photo-wrap img { height: 300px; }
+        .bento-grid .card-photo .photo-wrap { height: 100%; }
+        .bento-grid .card-photo .photo-wrap img { width: 100%; display: block; object-fit: cover; height: 100%; }        .bento-grid .card-full .photo-wrap img { height: 300px; }
         .bento-card { background: var(--card); border-radius: 10px; overflow: hidden; text-decoration: none; color: inherit; display: flex; flex-direction: column; transition: background 0.2s; cursor: pointer; position: relative; }
         .bento-card:hover { background: var(--card-hover); }
         .bento-card-header { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; font-size: 0.76rem; color: var(--text-dim); position: relative; z-index: 2; }
